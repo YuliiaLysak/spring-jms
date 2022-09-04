@@ -1,4 +1,4 @@
-package edu.lysak.springjms.sender;
+package edu.lysak.springjms.service;
 
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;

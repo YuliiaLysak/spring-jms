@@ -1,4 +1,4 @@
-package edu.lysak.springjms.receiver;
+package edu.lysak.springjms.service;
 
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
