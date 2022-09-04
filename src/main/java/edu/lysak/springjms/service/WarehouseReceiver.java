@@ -9,9 +9,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class WarehouseReceiver {
 
+    private final WarehouseProcessingService warehouseProcessingService;
+
+    public WarehouseReceiver(WarehouseProcessingService warehouseProcessingService) {
+        this.warehouseProcessingService = warehouseProcessingService;
+    }
+
     @JmsListener(destination = "book.order.queue")
     public void receive(BookOrder bookOrder) {
         log.info("Message received!");
         log.info("Message is == " + bookOrder);
+        warehouseProcessingService.processOrder(bookOrder);
     }
 }
