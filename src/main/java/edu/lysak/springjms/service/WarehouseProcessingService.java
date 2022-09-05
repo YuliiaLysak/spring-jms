@@ -5,6 +5,7 @@ import edu.lysak.springjms.domain.ProcessedBookOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -18,6 +19,7 @@ public class WarehouseProcessingService {
         this.jmsTemplate = jmsTemplate;
     }
 
+    @Transactional
     public void processOrder(BookOrder bookOrder){
         ProcessedBookOrder order = new ProcessedBookOrder(
                 bookOrder,

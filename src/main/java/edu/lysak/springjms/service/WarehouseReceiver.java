@@ -19,6 +19,16 @@ public class WarehouseReceiver {
     public void receive(BookOrder bookOrder) {
         log.info("Message received!");
         log.info("Message is == " + bookOrder);
+
+        // generates error for testing errorHandler
+        if (bookOrder.getBook().getTitle().startsWith("L")) {
+            throw new RuntimeException(
+                    "OrderId = "
+                    + bookOrder.getBookOrderId()
+                    + "begins with 'L' and these books are not allowed"
+            );
+        }
+
         warehouseProcessingService.processOrder(bookOrder);
     }
 }

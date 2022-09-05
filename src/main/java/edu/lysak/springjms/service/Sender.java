@@ -2,6 +2,7 @@ package edu.lysak.springjms.service;
 
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class Sender {
@@ -11,6 +12,7 @@ public class Sender {
         this.jmsTemplate = jmsTemplate;
     }
 
+    @Transactional
     public void sendMessage(String destination, String message) {
         jmsTemplate.convertAndSend(destination, message);
     }

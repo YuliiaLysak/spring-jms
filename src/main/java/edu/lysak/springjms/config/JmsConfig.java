@@ -4,6 +4,7 @@ import com.thoughtworks.xstream.security.AnyTypePermission;
 import edu.lysak.springjms.domain.Book;
 import edu.lysak.springjms.domain.BookOrder;
 import edu.lysak.springjms.domain.Customer;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,13 +12,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
+import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.jms.connection.SingleConnectionFactory;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MarshallingMessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 import org.springframework.oxm.xstream.XStreamMarshaller;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+@Slf4j
 @EnableJms
+@EnableTransactionManagement
 @Configuration
 public class JmsConfig { //implements JmsListenerConfigurer {
 
@@ -37,6 +44,8 @@ public class JmsConfig { //implements JmsListenerConfigurer {
         factory.setConnectionFactory(connectionFactory());
 //        factory.setMessageConverter(jacksonJmsMessageConverter());
         factory.setMessageConverter(xmlMarshallingMessageConverter());
+        factory.setTransactionManager(jmsTransactionManager());
+        factory.setErrorHandler(it -> log.info("Handling error in listener for messages, error: " + it.getMessage()));
         factory.setConcurrency("1-1");
         return factory;
     }
@@ -108,5 +117,20 @@ public class JmsConfig { //implements JmsListenerConfigurer {
 //        registrar.setContainerFactory(defaultJmsListenerContainerFactory());
 //        registrar.registerEndpoint(endpoint, defaultJmsListenerContainerFactory());
 //    }
+
+    @Bean
+    public PlatformTransactionManager jmsTransactionManager() {
+        return new JmsTransactionManager(connectionFactory());
+    }
+
+    @Bean
+    public JmsTemplate jmsTemplate() {
+        JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory());
+//        factory.setMessageConverter(jacksonJmsMessageConverter());
+        jmsTemplate.setMessageConverter(xmlMarshallingMessageConverter());
+        jmsTemplate.setDeliveryPersistent(true);
+        jmsTemplate.setSessionTransacted(true);
+        return jmsTemplate;
+    }
 
 }
