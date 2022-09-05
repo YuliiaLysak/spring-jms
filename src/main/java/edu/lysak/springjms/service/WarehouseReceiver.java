@@ -1,11 +1,13 @@
 package edu.lysak.springjms.service;
 
 import edu.lysak.springjms.domain.BookOrder;
+import edu.lysak.springjms.domain.ProcessedBookOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -19,7 +21,8 @@ public class WarehouseReceiver {
     }
 
     @JmsListener(destination = "book.order.queue")
-    public void receive(
+    @SendTo("book.order.processed.queue")
+    public ProcessedBookOrder receive(
             @Payload BookOrder bookOrder,
             @Header(name = "orderState") String orderState,
             @Header(name = "bookOrderId") String bookOrderId,
@@ -33,13 +36,13 @@ public class WarehouseReceiver {
 
         // generates error for testing errorHandler
         if (bookOrder.getBook().getTitle().startsWith("L")) {
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "OrderId = "
                     + bookOrder.getBookOrderId()
                     + "begins with 'L' and these books are not allowed"
             );
         }
 
-        warehouseProcessingService.processOrder(bookOrder, orderState, storeId);
+        return warehouseProcessingService.processOrder(bookOrder, orderState, storeId);
     }
 }
