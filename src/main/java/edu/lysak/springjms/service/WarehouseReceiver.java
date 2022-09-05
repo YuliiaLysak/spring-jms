@@ -4,6 +4,7 @@ import edu.lysak.springjms.domain.BookOrder;
 import edu.lysak.springjms.domain.ProcessedBookOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -22,7 +23,7 @@ public class WarehouseReceiver {
 
     @JmsListener(destination = "book.order.queue")
     @SendTo("book.order.processed.queue")
-    public ProcessedBookOrder receive(
+    public Message<ProcessedBookOrder> receive(
             @Payload BookOrder bookOrder,
             @Header(name = "orderState") String orderState,
             @Header(name = "bookOrderId") String bookOrderId,

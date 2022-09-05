@@ -126,7 +126,7 @@ public class JmsConfig { //implements JmsListenerConfigurer {
     @Bean
     public JmsTemplate jmsTemplate() {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory());
-//        factory.setMessageConverter(jacksonJmsMessageConverter());
+//        jmsTemplate.setMessageConverter(jacksonJmsMessageConverter());
         jmsTemplate.setMessageConverter(xmlMarshallingMessageConverter());
         jmsTemplate.setDeliveryPersistent(true);
         jmsTemplate.setSessionTransacted(true);
