@@ -4,6 +4,7 @@ import edu.lysak.springjms.domain.Book;
 import edu.lysak.springjms.domain.BookOrder;
 import edu.lysak.springjms.domain.Customer;
 import edu.lysak.springjms.service.BookOrderService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @RestController
 public class Controller {
 
@@ -32,15 +34,16 @@ public class Controller {
             new Customer("sm-8765", "Steve McClarney")
     );
 
-    @GetMapping("/process/order/{orderId}/{customerId}/{bookId}")
+    @GetMapping("/process/store/{storeId}/order/{orderId}/{customerId}/{bookId}/{orderState}")
     public String processOrder(
-            @PathVariable("orderId") String orderId,
+            @PathVariable("storeId") String storeId, // random value
+            @PathVariable("orderId") String orderId, // random value
             @PathVariable("customerId") String customerId,
-            @PathVariable("bookId") String bookId
+            @PathVariable("bookId") String bookId,
+            @PathVariable("orderState") String orderState //NEW, UPDATE, DELETE
     ) {
-
         try {
-            bookOrderService.send(build(customerId, bookId, orderId));
+            bookOrderService.send(build(customerId, bookId, orderId), storeId, orderState);
         } catch (Exception exception) {
             return "Error occurred! " + exception.getLocalizedMessage();
         }
