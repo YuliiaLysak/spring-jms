@@ -4,8 +4,8 @@ import edu.lysak.springjms.domain.BookOrder;
 import edu.lysak.springjms.domain.ProcessedBookOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.jms.listener.adapter.JmsResponse;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -23,17 +23,15 @@ public class WarehouseReceiver {
 
     @JmsListener(destination = "book.order.queue")
     @SendTo("book.order.processed.queue")
-    public Message<ProcessedBookOrder> receive(
+    public JmsResponse<Message<ProcessedBookOrder>> receive(
             @Payload BookOrder bookOrder,
             @Header(name = "orderState") String orderState,
             @Header(name = "bookOrderId") String bookOrderId,
-            @Header(name = "storeId") String storeId,
-            MessageHeaders messageHeaders
+            @Header(name = "storeId") String storeId
     ) {
         log.info("Message received!");
         log.info("Message is == " + bookOrder);
         log.info("Message property orderState = {}, bookOrderId = {}, storeId = {}", orderState, bookOrderId, storeId);
-        log.info("messageHeaders = {}", messageHeaders);
 
         // generates error for testing errorHandler
         if (bookOrder.getBook().getTitle().startsWith("L")) {

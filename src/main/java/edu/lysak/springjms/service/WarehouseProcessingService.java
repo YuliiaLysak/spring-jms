@@ -3,6 +3,7 @@ package edu.lysak.springjms.service;
 import edu.lysak.springjms.domain.BookOrder;
 import edu.lysak.springjms.domain.ProcessedBookOrder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jms.listener.adapter.JmsResponse;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
@@ -13,15 +14,22 @@ import java.util.Date;
 @Slf4j
 @Service
 public class WarehouseProcessingService {
+    private static final String PROCESSED_QUEUE = "book.order.processed.queue";
+    private static final String DELETED_QUEUE = "book.order.deleted.queue";
 
     @Transactional
-    public Message<ProcessedBookOrder> processOrder(BookOrder bookOrder, String orderState, String storeId) {
+    public JmsResponse<Message<ProcessedBookOrder>> processOrder(BookOrder bookOrder, String orderState, String storeId) {
+        Message<ProcessedBookOrder> message;
+
         if ("NEW".equalsIgnoreCase(orderState)) {
-            return add(bookOrder, storeId);
+            message = add(bookOrder, storeId);
+            return JmsResponse.forQueue(message, PROCESSED_QUEUE);
         } else if ("UPDATE".equalsIgnoreCase(orderState)) {
-            return update(bookOrder, storeId);
+            message = update(bookOrder, storeId);
+            return JmsResponse.forQueue(message, PROCESSED_QUEUE);
         } else if ("DELETE".equalsIgnoreCase(orderState)) {
-            return delete(bookOrder, storeId);
+            message = delete(bookOrder, storeId);
+            return JmsResponse.forQueue(message, DELETED_QUEUE);
         } else {
             throw new IllegalArgumentException("WarehouseProcessingService.processOrder(...) - " +
                     "orderState did not match expected values");
