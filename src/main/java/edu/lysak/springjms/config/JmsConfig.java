@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.connection.SingleConnectionFactory;
 import org.springframework.jms.support.converter.MarshallingMessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -40,17 +41,30 @@ public class JmsConfig { //implements JmsListenerConfigurer {
         return factory;
     }
 
+//    @Bean
+//    public SingleConnectionFactory connectionFactory() {
+//        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(
+//                user,
+//                password,
+//                brokerUrl
+//        );
+//        SingleConnectionFactory singleConnectionFactory = new SingleConnectionFactory(factory);
+//        singleConnectionFactory.setReconnectOnException(true);
+//        singleConnectionFactory.setClientId("myClientId");
+//        return singleConnectionFactory;
+//    }
+
     @Bean
-    public SingleConnectionFactory connectionFactory() {
+    public CachingConnectionFactory connectionFactory() {
         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(
                 user,
                 password,
                 brokerUrl
         );
-        SingleConnectionFactory singleConnectionFactory = new SingleConnectionFactory(factory);
-        singleConnectionFactory.setReconnectOnException(true);
-        singleConnectionFactory.setClientId("myClientId");
-        return singleConnectionFactory;
+        CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(factory);
+        cachingConnectionFactory.setClientId("myClientId");
+        cachingConnectionFactory.setSessionCacheSize(100);
+        return cachingConnectionFactory;
     }
 
 //    @Bean
